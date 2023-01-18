@@ -1,0 +1,57 @@
+import pygame
+
+class NaveJugador(pygame.sprite.Sprite):
+	def __init__(self, game):
+		super().__init__()
+		self.game = game 
+
+		self.enemigos_anima = []
+		for i in range(3):
+			file = "ra/nave_{}.png".format(i + 1)
+			img = pygame.image.load(file).convert()
+			img.set_colorkey((255, 255, 255))
+			self.enemigos_anima.append(img)
+
+		self.image = self.enemigos_anima[0]
+		self.rect = self.image.get_rect()
+		self.rect.centerx = self.game.RESOLUCION[0] // 2
+		self.rect.y = self.game.RESOLUCION[1] - self.rect.height
+		self.vel_x = 0
+		self.vel_y = 0
+		self.fotograma = 0
+		self.ultimo_update = pygame.time.get_ticks()
+		self.fotogramas_vel = 40
+
+	def leer_teclado(self):
+		self.vel_x = 0
+		izqder = pygame.key.get_pressed()
+
+		if izqder[pygame.K_LEFT]:
+			self.vel_x = -10
+		if izqder[pygame.K_RIGHT]:
+			self.vel_x = 10
+
+	def update(self):
+		calculo = pygame.time.get_ticks()
+		if calculo - self.ultimo_update > self.fotogramas_vel:
+			self.fotograma += 1
+			if self.fotograma == len(self.enemigos_anima):
+				self.fotograma = 0
+
+			center = self.rect.centerx
+			y = self.rect.y 
+			self.image = self.enemigos_anima[self.fotograma]
+			self.rect = self.image.get_rect()
+			self.rect.centerx = center
+			self.rect.y = y 
+
+		self.rect.x += self.vel_x
+		self.rect.y += self.vel_y
+
+		if self.rect.right > self.game.RESOLUCION[0]:
+			self.rect.right = self.game.RESOLUCION[0]
+
+		if self.rect.left < 0:
+			self.rect.left = 0 
+
+				

@@ -1,0 +1,26 @@
+import pygame
+import random
+
+
+class Estrella(pygame.sprite.Sprite):
+    def __init__(self, game):
+        super().__init__()
+        self.game = game 
+        self.image = random.choice(self.game.estrellas_imagenes)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(self.game.RESOLUCION[0] - self.width)
+        self.rect.y = random.randrange(self.game.RESOLUCION[1] - 50)
+        self.fy = self.rect.y 
+        self.vel_y = self.rect.width / 10
+
+    def update(self):
+        self.fy += self.vel_y
+        self.rect.y = self.fy
+
+        if self.rect.top > self.game.RESOLUCION[1]:
+            self.rect.x = random.randrange(self.game.RESOLUCION[0] - self.width)
+            self.rect_y = random.randrange(-50, -2)
+            self.fy = self.rect.y 
+            
+
+    
