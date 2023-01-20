@@ -1,0 +1,94 @@
+import pygame
+import sys
+from ra1 import *
+from ra2 import *
+
+
+class Game:
+    def __init__(self):
+        pygame.init()
+        pygame.mixer.init()
+        self.AZUL_C = (0, 194, 233)
+        self.gameover = False
+        self.RESOLUCION = (1000, 600)
+        self.FPS = 30
+        self.pantalla = pygame.display.set_mode(self.RESOLUCION)
+        pygame.display.set_caption("RETRO ALIENS by Juan Eguia")
+        self.reloj = pygame.time.Clock()
+        self.fondo = pygame.image.load("ra/fondoespacial_profundo.png").convert()
+        self.estrellas_lista = [
+            "ra/estrella_imagen3x3.png", "ra/estrella_imagen3x3.png", "ra/estrella_imagen5x5.png",
+            "ra/estrella_imagen7x7.png",
+        ]
+        self.cargar_listas_imagenes()
+        self.new_game()
+
+    def dibuja_texto(self, surface, texto, size, x, y):
+        font = pygame.font.SysFont("serif", size)
+        text_surface = font.render(texto, True, self.AZUL_C)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        surface.blit(text_surface, text_rect)
+
+    def cargar_listas_imagenes(self):
+        self.estrellas_imagenes = []
+        for img in self.estrellas_lista:
+            self.estrellas_imagenes.append(pygame.image.load(img))
+
+    def new_game(self):
+        self.puntos = 0
+        self.nivel = 1
+
+        self.lista_sprites_adibujar = pygame.sprite.Group()
+        self.lista_enemigos = pygame.sprite.Group()
+
+        for i in range(120):
+            self.estrella = Estrella(self)
+            self.lista_sprites_adibujar.add(self.estrella)
+
+        self.nave_jugador = NaveJugador(self)
+        self.lista_sprites_adibujar.add(self.nave_jugador)
+
+        for i in range(10):
+            self.ene_uno = Enemigo(self, i * 80 + 100, 80, 2, 0, 50, 1)
+            self.lista_sprites_adibujar.add(self.ene_uno)
+            self.lista_enemigos.add(self.ene_uno)
+
+            self.ene_dos = Enemigo(self, i * 80 + 50, 150, 2, 0, 50, 2)
+            self.lista_sprites_adibujar.add(self.ene_dos)
+            self.lista_enemigos.add(self.ene_dos)
+
+            self.ene_tres = Enemigo(self, i * 80 , 220, 5, 0, 50, 3)
+            self.lista_sprites_adibujar.add(self.ene_tres)
+            self.lista_enemigos.add(self.ene_tres)
+
+    def update(self):
+        self.lista_sprites_adibujar.update()
+        pygame.display.flip()
+        self.reloj.tick(self.FPS)
+
+    def draw(self):
+        self.pantalla.blit(self.fondo, [0, 0])
+        self.lista_sprites_adibujar.draw(self.pantalla)
+
+        self.dibuja_texto(self.pantalla, f'Puntos: {str(self.puntos)}', 25, self.RESOLUCION[0] // 2, 10)
+        self.dibuja_texto(self.pantalla, f'Nivel: {str(self.nivel)}', 25, 100, 10)
+
+    def check_event(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+
+            self.nave_jugador.leer_teclado()
+
+    def run(self):
+        while not self.gameover:
+            self.check_event()
+            self.update()
+            self.draw()
+
+
+if __name__ == '__main__':
+    game = Game()
+    game.run()

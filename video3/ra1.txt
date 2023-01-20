@@ -1,0 +1,75 @@
+import pygame
+import random
+
+
+class Estrella(pygame.sprite.Sprite):
+    def __init__(self, game):
+        super().__init__()
+        self.game = game
+        self.image = random.choice(self.game.estrellas_imagenes)
+        self.rect = self.image.get_rect()
+        self.rect.x = random.randrange(self.game.RESOLUCION[0] - self.rect.width)
+        self.rect.y = random.randrange(self.game.RESOLUCION[1] - 50)
+        self.fy = self.rect.y
+        self.vel_y = self.rect.width / 10
+
+    def update(self):
+        self.fy += self.vel_y
+        self.rect.y = self.fy
+
+        if self.rect.top > self.game.RESOLUCION[1]:
+            self.rect.x = random.randrange(self.game.RESOLUCION[0] - self.rect.width)
+            self.rect_y = random.randrange(-50, -2)
+            self.fy = self.rect.y
+
+
+class Enemigo(pygame.sprite.Sprite):
+    def __init__(self, game, x, y, vel_x, vel_y, recorrido_top, tipo_ene):
+        super().__init__()
+        self.game = game
+        self.tipo_ene = tipo_ene
+        self.enemigos_anima = []
+        for i in range(3):
+            file = "ra/jon{}{}.png".format(self.tipo_ene, i + 1)
+            img = pygame.image.load(file).convert()
+            img.set_colorkey((255, 255, 255))
+            self.enemigos_anima.append(img)
+
+        self.image = self.enemigos_anima[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_x = vel_x
+        self.vel_y = vel_y
+        self.recorrido = 0
+        self.recorrido_top = recorrido_top
+        self.fotograma = 0
+        self.ultimo_update = pygame.time.get_ticks()
+        self.fotograma_vel = 50
+
+    def update(self):
+        calculo = pygame.time.get_ticks()
+        if calculo - self.ultimo_update > self.fotograma_vel:
+            self.ultimo_update = calculo
+            self.fotograma += 1
+            if self.fotograma == len(self.enemigos_anima):
+                self.fotograma = 0
+
+            center = self.rect.center
+            self.image = self.enemigos_anima[self.fotograma]
+            self.rect = self.image.get_rect()
+            self.rect.center = center
+
+        self.rect.y += self.vel_y
+        self.rect.x += self.vel_x
+        self.recorrido += 1
+
+        if self.recorrido >= self.recorrido_top:
+            self.vel_x = -self.vel_x
+            self.recorrido = 0
+
+
+
+
+
+
